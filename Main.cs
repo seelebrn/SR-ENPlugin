@@ -18,37 +18,14 @@ using Il2CppSystem.Linq;
 using UnhollowerRuntimeLib;
 using Newtonsoft.Json.Linq;
 
-namespace Mod
+namespace SRLinesPuller
 {
 
-    [BepInPlugin("Cadenza.Game.EN.MOD", "ENMod", "0.5")]
+    [BepInPlugin("Cadenza.SRLinesPuller.EN.MOD", "SRLinesPuller", "0.5")]
     public class Plugin : BasePlugin
     {
-        public static Dictionary<string, string> translationDict;
         public static string[] forbidden = new string[] { "Sprite", "AnimationClip", "RuntimeAnimatorController", "Texture2D", "PlaceIcon", "AudioClip", "Material", "SpriteAtlas", "Font", "Shader", "TMP_FontAsset" };
-        public static Dictionary<string, string> FileToDictionary(string dir)
-        {
-            Debug.Log(BepInEx.Paths.PluginPath);
-
-            Dictionary<string, string> dict = new Dictionary<string, string>();
-
-            IEnumerable<string> lines = File.ReadLines(Path.Combine(BepInEx.Paths.PluginPath, "Translations", dir));
-
-            foreach (string line in lines)
-            {
-                var arr = line.Split('¤');
-                if (arr[0] != arr[1])
-                {
-                    var pair = new KeyValuePair<string, string>(Regex.Replace(arr[0], @"\t|\n|\r", ""), arr[1]);
-                    if (!dict.ContainsKey(pair.Key))
-                        dict.Add(pair.Key, pair.Value);
-                    else
-                        Debug.Log($"Found a duplicated line while parsing {dir}: {pair.Key}");
-                }
-            }
-
-            return dict;
-        }
+      
 
         public static BepInEx.Logging.ManualLogSource log;
 
@@ -71,7 +48,17 @@ namespace Mod
         {
             if (Input.GetKeyUp(KeyCode.F8) == true)
             {
+                if (File.Exists(Path.Combine(BepInEx.Paths.PluginPath, "MasterList.txt")))
+                {
+                    File.Delete(Path.Combine(BepInEx.Paths.PluginPath, "MasterList.txt"));
+                }
 
+                System.IO.DirectoryInfo di = new DirectoryInfo(Path.Combine(BepInEx.Paths.PluginPath, "Assets"));
+
+                foreach (FileInfo file in di.GetFiles())
+                {
+                    file.Delete();
+                }
                 foreach (var bundle in AssetBundle.GetAllLoadedAssetBundles_Native())
                 {
                     //Plugin.log.LogInfo("Bundle Name =" + ab.name);

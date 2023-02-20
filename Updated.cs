@@ -1,4 +1,5 @@
- [HarmonyPatch(typeof(ResourceControl), "GetAssetNowProgress")]
+
+    [HarmonyPatch(typeof(ResourceControl), "GetAssetNowProgress")]
     static class Patch00
     {
         static void Postfix(ResourceControl __instance)
@@ -24,20 +25,29 @@
                             {
                                 if (obj.GetIl2CppType().Name != "DialogUnitFSM")
                                 {
+                                    try
+                                    { 
                                     //Plugin.mod.LogInfo("        ScriptableObject = " + obj.GetIl2CppType().Name);
                                     string result = UnityEngine.JsonUtility.ToJson(obj);
 
                                     //byte[] serializedData = SerializationUtility.SerializeValue(obj.GetIl2CppType(), DataFormat.JSON);
                                     //string result = System.Text.Encoding.UTF8.GetString(serializedData);
-                                    if (obj.GetIl2CppType().Name == "AwardGroup") { Plugin.mod.LogInfo("SerializedData = " + result); }
+                                    //if (obj.GetIl2CppType().Name == "AwardGroup") { Plugin.mod.LogInfo("SerializedData = " + result); }
                                     var pattern = "\"([^\"]*)\"";
                                     MatchCollection matchCollection = Regex.Matches(result, pattern);
                                     foreach (var match in matchCollection)
                                     {
                                         if (match != null && Helpers.IsChinese(match.ToString()) && !strings.Contains(match.ToString()))
                                         {
+                                            result = Regex.Replace(result, match.ToString(), "\"" + "000" + "\"");
                                             strings.Add(match.ToString().Replace("\"", ""));
+                                               
                                         }
+
+                                    }
+                                     }
+                                    catch
+                                    {
 
                                     }
                                 }
